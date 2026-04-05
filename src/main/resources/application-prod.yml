@@ -1,0 +1,67 @@
+# Production profile configuration
+# Activate with: java -jar azure-sso-api.jar --spring.profiles.active=prod
+# or set environment variable: SPRING_PROFILES_ACTIVE=prod
+
+server:
+  port: ${PORT:8080}
+  # Enable HTTPS in production
+  # ssl:
+  #   enabled: true
+  #   key-store: classpath:keystore.p12
+  #   key-store-password: ${SSL_KEY_STORE_PASSWORD}
+  #   key-store-type: PKCS12
+
+# Azure AD Configuration - IMPORTANT: Store these in Azure Key Vault or environment variables
+azure:
+  tenant-id: ${AZURE_TENANT_ID}
+  client-id: ${AZURE_CLIENT_ID}
+  client-secret: ${AZURE_CLIENT_SECRET}
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          azure:
+            client-id: ${azure.client-id}
+            client-secret: ${azure.client-secret}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          azure:
+            # Use your production Azure AD tenant ID
+            issuer-uri: https://login.microsoftonline.com/${azure.tenant-id}/v2.0
+
+# JWT Configuration
+app:
+  security:
+    jwt:
+      # IMPORTANT: Store secret key in Azure Key Vault or secure environment variable
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: 86400000  # 24 hours
+
+# Production logging - reduce verbosity
+logging:
+  level:
+    root: WARN
+    com.example.azuressoapi: INFO
+    org.springframework.security: WARN
+    com.azure.spring: WARN
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+  file:
+    name: /var/log/azure-sso-api/application.log
+    max-size: 10MB
+    max-history: 30
+
+# Actuator - restrict in production
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# Security headers
+# Consider adding additional security configuration here
