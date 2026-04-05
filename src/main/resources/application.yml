@@ -27,7 +27,7 @@ spring:
             token-uri: https://login.microsoftonline.com/${azure.tenant-id}/oauth2/v2.0/token
             user-info-uri: https://graph.microsoft.com/oidc/userinfo
             jwk-set-uri: https://login.microsoftonline.com/${azure.tenant-id}/discovery/v2.0/keys
-            user-name-attribute: email
+            user-name-attribute: sub
 
 # Azure AD Configuration (can be overridden by environment variables or profiles)
 azure:

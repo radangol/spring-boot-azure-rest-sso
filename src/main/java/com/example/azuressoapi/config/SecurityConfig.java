@@ -52,8 +52,8 @@ public class SecurityConfig {
         http
             // Configure authorization rules
             .authorizeHttpRequests(authorize -> authorize
-                // Allow unauthenticated access to health check endpoint
-                .requestMatchers("/actuator/health").permitAll()
+                // Allow unauthenticated access to health check and OAuth2 login endpoints
+                .requestMatchers("/actuator/health", "/login/oauth2/code/**").permitAll()
                 
                 // Require authentication for all /api/** endpoints
                 .requestMatchers("/api/**").authenticated()

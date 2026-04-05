@@ -48,10 +48,10 @@ public class AzureOAuth2UserService extends DefaultOAuth2UserService {
         String nameAttributeKey = userRequest.getClientRegistration()
             .getProviderDetails()
             .getUserInfoEndpoint()
-.getUserNameAttributeName();
+            .getUserNameAttributeName();
         
         if (nameAttributeKey == null || nameAttributeKey.isEmpty()) {
-            nameAttributeKey = "email"; // Default to email
+            nameAttributeKey = "sub"; // Default to 'sub' (standard OIDC claim)
         }
 
         // Return wrapped OAuth2User with our User DTO

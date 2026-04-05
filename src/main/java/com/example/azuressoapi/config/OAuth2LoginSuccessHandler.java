@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -36,9 +37,16 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             HttpServletResponse response,
             Authentication authentication) throws IOException {
 
-        // Extract user from OAuth2 authentication
-        OAuth2UserImpl oAuth2User = (OAuth2UserImpl) authentication.getPrincipal();
-        User user = oAuth2User.getUser();
+        OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+        Map<String, Object> attributes = oidcUser.getAttributes();
+
+        User user = new User();
+        user.setEmail((String) attributes.get("email"));
+        user.setName((String) attributes.get("name"));
+        user.setOid((String) attributes.get("oid"));
+        // You might need to adjust how you get the ID, depending on your user model
+        // For example, if the OID is the ID:
+        user.setId(user.getOid());
 
         // Generate JWT token
         String token = jwtService.generateToken(user);
