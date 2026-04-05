@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,6 +36,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AzureOAuth2UserService azureOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     /**
      * Configure security filter chain for REST API endpoints.
@@ -53,7 +54,7 @@ public class SecurityConfig {
             // Configure authorization rules
             .authorizeHttpRequests(authorize -> authorize
                 // Allow unauthenticated access to health check and OAuth2 login endpoints
-                .requestMatchers("/actuator/health", "/login/oauth2/code/**").permitAll()
+                .requestMatchers("/", "/login", "/actuator/health", "/login/oauth2/code/**").permitAll()
                 
                 // Require authentication for all /api/** endpoints
                 .requestMatchers("/api/**").authenticated()
@@ -71,7 +72,7 @@ public class SecurityConfig {
             )
             
             // Add JWT authentication filter
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class)
             
             // Disable CSRF for stateless API
             .csrf(csrf -> csrf.disable())
@@ -80,6 +81,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(restAuthenticationEntryPoint))
             
             // Enable CORS
             .cors(Customizer.withDefaults());

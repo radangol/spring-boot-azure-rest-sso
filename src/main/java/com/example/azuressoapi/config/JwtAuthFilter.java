@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -62,11 +62,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             OAuth2UserImpl userDetails = new OAuth2UserImpl(user, new HashMap<>(), "email");
 
             // Create authentication token
-            UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
+            OAuth2AuthenticationToken authentication =
+                new OAuth2AuthenticationToken(
                     userDetails,
-                    null,
-                    userDetails.getAuthorities()
+                    userDetails.getAuthorities(),
+                    "azure" // Represents the client registration ID
                 );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
